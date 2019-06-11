@@ -13,19 +13,19 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser()
-parser.add_argument('--batch-size', type = int, default = 64)
-parser.add_argument('--test-batch-size', type = int, default = 1000)
-parser.add_argument('--epochs', type = int, default = 10)
-parser.add_argument('--lr', type = float, default = 0.01)
-parser.add_argument('--momentum', type=float, default = 0.5)
-parser.add_argument('--no-cuda', action = 'store_true', default = False)
-parser.add_argument('--seed', type = int, default = 1)
-parser.add_argument('--log-interval', type = int, default = 10)
-parser.add_argument('--save-interval', type = int, default = 100)
-parser.add_argument('--model', required = True)
-parser.add_argument('--angle', type = int, default=60)
-parser.add_argument('--span_range', type = int, default = 0.9)
-parser.add_argument('--grid_size', type = int, default = 4)
+parser.add_argument('--batch-size', type=int, default=64)
+parser.add_argument('--test-batch-size', type=int, default=1000)
+parser.add_argument('--epochs', type=int, default=10)
+parser.add_argument('--lr', type=float, default=0.01)
+parser.add_argument('--momentum', type=float, default=0.5)
+parser.add_argument('--no-cuda', action='store_true', default=False)
+parser.add_argument('--seed', type=int, default=1)
+parser.add_argument('--log-interval', type=int, default=10)
+parser.add_argument('--save-interval', type=int, default=100)
+parser.add_argument('--model', required=True)
+parser.add_argument('--angle', type=int, default=60)
+parser.add_argument('--span_range', type=int, default=0.9)
+parser.add_argument('--grid_size', type=int, default=4)
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -41,9 +41,10 @@ model = mnist_model.get_model(args)
 if args.cuda:
     model.cuda()
 
-optimizer = optim.SGD(model.parameters(), lr = args.lr, momentum = args.momentum)
+optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 train_loader = data_loader.get_train_loader(args)
 test_loader = data_loader.get_test_loader(args)
+
 
 def train(epoch):
     model.train()
@@ -57,14 +58,15 @@ def train(epoch):
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.data[0]))
+            print('Train Epoch: {0} [{1}/{2} ({3:.0f}%)]\tLoss: {4:.6f}'.format(
+                epoch, batch_idx * len(data), len(train_loader.dataset), 100. * batch_idx / len(train_loader),
+                loss.data))
         if batch_idx % args.save_interval == 0:
             checkpoint_path = checkpoint_dir + 'epoch%03d_iter%03d.pth' % (epoch, batch_idx)
             torch.save(model.cpu().state_dict(), checkpoint_path)
             if args.cuda:
                 model.cuda()
+
 
 def test(epoch):
     model.eval()
@@ -73,14 +75,14 @@ def test(epoch):
     for data, target in test_loader:
         if args.cuda:
             data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile = True), Variable(target)
+        data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
-        test_loss += F.nll_loss(output, target).data[0]
-        pred = output.data.max(1)[1] # get the index of the max log-probability
+        test_loss += F.nll_loss(output, target).data
+        pred = output.data.max(1)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data).cpu().sum()
 
     test_loss = test_loss
-    test_loss /= len(test_loader) # loss function already averages over batch size
+    test_loss /= len(test_loader)  # loss function already averages over batch size
     accuracy = 100. * correct / len(test_loader.dataset)
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.02f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset), accuracy,

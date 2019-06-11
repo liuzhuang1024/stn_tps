@@ -10,6 +10,7 @@ from grid_sample import grid_sample
 from torch.autograd import Variable
 from tps_grid_gen import TPSGridGen
 
+
 class CNN(nn.Module):
     def __init__(self, num_output):
         super(CNN, self).__init__()
@@ -28,6 +29,7 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
+
 class ClsNet(nn.Module):
 
     def __init__(self):
@@ -36,6 +38,7 @@ class ClsNet(nn.Module):
 
     def forward(self, x):
         return F.log_softmax(self.cnn(x))
+
 
 class BoundedGridLocNet(nn.Module):
 
@@ -53,6 +56,7 @@ class BoundedGridLocNet(nn.Module):
         points = F.tanh(self.cnn(x))
         return points.view(batch_size, -1, 2)
 
+
 class UnBoundedGridLocNet(nn.Module):
 
     def __init__(self, grid_height, grid_width, target_control_points):
@@ -68,6 +72,7 @@ class UnBoundedGridLocNet(nn.Module):
         points = self.cnn(x)
         return points.view(batch_size, -1, 2)
 
+
 class STNClsNet(nn.Module):
 
     def __init__(self, args):
@@ -76,13 +81,13 @@ class STNClsNet(nn.Module):
 
         r1 = args.span_range_height
         r2 = args.span_range_width
-        assert r1 < 1 and r2 < 1 # if >= 1, arctanh will cause error in BoundedGridLocNet
+        assert r1 < 1 and r2 < 1  # if >= 1, arctanh will cause error in BoundedGridLocNet
         target_control_points = torch.Tensor(list(itertools.product(
-            np.arange(-r1, r1 + 0.00001, 2.0  * r1 / (args.grid_height - 1)),
-            np.arange(-r2, r2 + 0.00001, 2.0  * r2 / (args.grid_width - 1)),
+            np.arange(-r1, r1 + 0.00001, 2.0 * r1 / (args.grid_height - 1)),
+            np.arange(-r2, r2 + 0.00001, 2.0 * r2 / (args.grid_width - 1)),
         )))
-        Y, X = target_control_points.split(1, dim = 1)
-        target_control_points = torch.cat([X, Y], dim = 1)
+        Y, X = target_control_points.split(1, dim=1)
+        target_control_points = torch.cat([X, Y], dim=1)
 
         GridLocNet = {
             'unbounded_stn': UnBoundedGridLocNet,
@@ -102,6 +107,7 @@ class STNClsNet(nn.Module):
         transformed_x = grid_sample(x, grid)
         logit = self.cls_net(transformed_x)
         return logit
+
 
 def get_model(args):
     if args.model == 'no_stn':

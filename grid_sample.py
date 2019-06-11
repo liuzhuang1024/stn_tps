@@ -3,7 +3,8 @@
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-def grid_sample(input, grid, canvas = None):
+
+def grid_sample(input, grid, canvas=None):
     output = F.grid_sample(input, grid)
     if canvas is None:
         return output
