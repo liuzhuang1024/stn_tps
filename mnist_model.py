@@ -30,14 +30,14 @@ class CNN(nn.Module):
         return x
 
 
-from mnist_model_summuy import CNN
+from mnist_model_summuy import CNN, CNN2
 
 
 class ClsNet(nn.Module):
 
     def __init__(self):
         super(ClsNet, self).__init__()
-        self.cnn = CNN(10)
+        self.cnn = CNN2(10)
 
     def forward(self, x):
         return F.log_softmax(self.cnn(x))

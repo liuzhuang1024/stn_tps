@@ -3,10 +3,11 @@
 import os
 import glob
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
-plt.figure(figsize = (10, 10))
+# plot acc
+plt.figure(figsize=(10, 10))
 for path in sorted(glob.glob('accuracy_log/*.txt')):
     accu_list = [float(line.strip()) for line in open(path)]
     label = os.path.basename(path)[:-4]
@@ -31,10 +32,10 @@ for path in sorted(glob.glob('accuracy_log/*.txt')):
     }[model1 + '_' + model2 + '_' + grid]
     plt.plot(
         list(range(len(accu_list))), accu_list,
-        color = color, linestyle = linestyle, linewidth = 0.5,
-        label = label,
+        color=color, linestyle=linestyle, linewidth=0.5,
+        label=label,
     )
-plt.legend(loc = 'lower right')
+plt.legend(loc='lower right')
 if not os.path.isdir('demo'):
     os.makedirs('demo')
 plt.savefig('demo/curve.png')

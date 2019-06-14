@@ -5,16 +5,19 @@ import torch
 import random
 import argparse
 import mnist_model
+# import mnist_model_summuy as mnist_model
 import data_loader
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+# from cv2 import resize
+# from torchvision.transforms import Resize, ToTensor, ToPILImage
 # Training settings
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch-size', type=int, default=64)
-parser.add_argument('--test-batch-size', type=int, default=1000)
+parser.add_argument('--test-batch-size', type=int, default=3000)
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--momentum', type=float, default=0.5)
@@ -24,14 +27,16 @@ parser.add_argument('--log-interval', type=int, default=10)
 parser.add_argument('--save-interval', type=int, default=100)
 parser.add_argument('--model', required=True)
 parser.add_argument('--angle', type=int, default=60)
-parser.add_argument('--span_range', type=int, default=0.9)
+parser.add_argument('--span_range', type=int, default=0.5)
 parser.add_argument('--grid_size', type=int, default=4)
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 args.span_range_height = args.span_range_width = args.span_range
-args.grid_height = args.grid_width = args.grid_size
-args.image_height = args.image_width = 28
+args.grid_height = args.grid_size
+args.grid_width = args.grid_size
+args.image_height = 64
+args.image_width = 64
 
 torch.manual_seed(args.seed)
 if args.cuda:
@@ -73,6 +78,7 @@ def test(epoch):
     test_loss = 0
     correct = 0
     for data, target in test_loader:
+        # print(data.shape)
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
